@@ -147,7 +147,7 @@
 </main>
 
 <script>
-const GEMINI_KEY = 'AIzaSyDeYnir9zqdC1-0RIuR7a6FgwHo0-q6iOY';
+const GEMINI_KEY = 'AIzaSyA3jkVuQukmBWyziqZ4sauSKJfBRZdohIE';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_KEY}`;
 
 let currentEbayAvg = null;
@@ -259,7 +259,7 @@ Search eBay sold listings and Amazon for current prices. Then respond with ONLY 
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: { temperature: 0.2 },
-        tools: [{ googleSearch: {} }]
+
       })
     });
 

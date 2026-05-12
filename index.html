@@ -243,26 +243,14 @@ async function runSearch() {
   resultsSection.className = 'results-section visible';
   resultsContent.innerHTML = `<div class="loading-state"><div class="spinner"></div>researching resale market...</div>`;
 
-  const prompt = `You are a resale arbitrage expert. Research this item for flip potential: "${query}"
+  const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}&LH_Sold=1&LH_Complete=1`;
+  const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(query)}`;
+  const fbUrl = `https://www.facebook.com/marketplace/search/?query=${encodeURIComponent(query)}`;
 
-Based on your knowledge of eBay sold listings, Amazon pricing, and resale markets, provide accurate data.
+  const prompt = `You are a resale arbitrage expert. Search for current pricing on: "${query}"
 
-Return ONLY valid JSON, no markdown fences, no explanation:
-{
-  "product_name": "clean product name",
-  "ebay_avg_sold": 45.00,
-  "ebay_price_range": "$35 - $65",
-  "ebay_sold_30days": 23,
-  "ebay_sell_frequency": "approx X sold per day/week",
-  "ebay_shipping_note": "most listings: free shipping / buyer pays shipping / mixed",
-  "amazon_price": "$52.99",
-  "amazon_price_range": "$48 - $68",
-  "amazon_note": "sold by Amazon / 3rd party / FBA",
-  "market_summary": "2-3 sentences: demand level, sell speed, retail availability impact on margins, overall verdict. Speak like a fellow reseller who is direct and practical.",
-  "ebay_search_url": "https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}&LH_Sold=1&LH_Complete=1",
-  "amazon_search_url": "https://www.amazon.com/s?k=${encodeURIComponent(query)}",
-  "confidence": "high or medium or low"
-}`;
+Search eBay sold listings and Amazon for current prices. Then respond with ONLY a JSON object (no markdown, no explanation) in this exact format:
+{"product_name":"full product name","ebay_avg_sold":45.00,"ebay_price_range":"$35 - $65","ebay_sold_30days":23,"ebay_sell_frequency":"~1 per day","ebay_shipping_note":"free shipping / buyer pays / mixed","amazon_price":"$52.99","amazon_price_range":"$48 - $68","amazon_note":"sold by Amazon / 3rd party","market_summary":"2-3 sentences on demand, sell speed, and flip worthiness. Be direct like a fellow reseller.","confidence":"high"}`;
 
   try {
     const res = await fetch(GEMINI_URL, {
@@ -271,7 +259,7 @@ Return ONLY valid JSON, no markdown fences, no explanation:
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: { temperature: 0.2 },
-        tools: [{ google_search: {} }]
+        tools: [{ googleSearch: {} }]
       })
     });
 
@@ -313,9 +301,6 @@ Return ONLY valid JSON, no markdown fences, no explanation:
     }
 
     const confColor = parsed.confidence === 'high' ? 'badge-green' : parsed.confidence === 'medium' ? 'badge-amber' : 'badge-red';
-    const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}&LH_Sold=1&LH_Complete=1`;
-    const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(query)}`;
-    const fbUrl = `https://www.facebook.com/marketplace/search/?query=${encodeURIComponent(query)}`;
 
     resultsContent.innerHTML = `
       <div class="result-header">

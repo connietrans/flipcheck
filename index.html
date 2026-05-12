@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlipCheck — Resale Research Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e10;
+    --surface: #18181c;
+    --surface2: #1f1f25;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0efe8;
+    --muted: #8a8a90;
+    --accent: #c8f135;
+    --accent-dim: rgba(200,241,53,0.12);
+    --accent-dim2: rgba(200,241,53,0.06);
+    --red: #ff5f5f;
+    --red-dim: rgba(255,95,95,0.12);
+    --green: #4ade80;
+    --green-dim: rgba(74,222,128,0.12);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251,191,36,0.12);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96,165,250,0.12);
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; }
+  header { padding: 20px 24px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+  .logo { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--accent); }
+  .logo span { color: var(--text); }
+  .tagline { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; margin-left: auto; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px; }
+  .search-section { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
+  .section-label { display: block; font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+  .input-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .input-row input { flex: 1; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 12px 14px; color: var(--text); font-family: 'Syne', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; }
+  .input-row input:focus { border-color: var(--accent); }
+  .input-row input::placeholder { color: var(--muted); }
+  .btn-search { background: var(--accent); color: #0e0e10; border: none; border-radius: var(--radius); padding: 12px 20px; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.1s; white-space: nowrap; }
+  .btn-search:hover { opacity: 0.88; }
+  .btn-search:active { transform: scale(0.97); }
+  .btn-search:disabled { opacity: 0.4; cursor: not-allowed; }
+  .divider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .divider-line { flex: 1; height: 1px; background: var(--border); }
+  .divider-text { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .photo-area { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 18px; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; position: relative; min-height: 80px; display: flex; align-items: center; justify-content: center; }
+  .photo-area:hover { border-color: var(--accent); background: var(--accent-dim2); }
+  .photo-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .photo-inner { pointer-events: none; }
+  .photo-icon { font-size: 24px; margin-bottom: 4px; }
+  .photo-text { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .photo-preview { max-height: 120px; max-width: 100%; border-radius: 8px; margin: 0 auto 6px; object-fit: contain; display: block; }
+  .identified-row { display: flex; align-items: center; gap: 8px; background: var(--accent-dim); border: 1px solid rgba(200,241,53,0.2); border-radius: var(--radius); padding: 10px 14px; margin-top: 10px; }
+  .identified-label { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
+  .identified-value { font-size: 13px; color: var(--text); flex: 1; }
+  .btn-use { background: none; border: 1px solid var(--accent); color: var(--accent); border-radius: 6px; padding: 4px 10px; font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+  .btn-use:hover { background: var(--accent-dim); }
+  .cost-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .cost-row label { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--muted); white-space: nowrap; }
+  .cost-row input { width: 100px; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 8px 12px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; outline: none; transition: border-color 0.2s; }
+  .cost-row input:focus { border-color: var(--accent); }
+  .profit-preview { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--muted); margin-left: auto; }
+  .profit-preview.positive { color: var(--green); }
+  .profit-preview.negative { color: var(--red); }
+  .results-section { display: none; }
+  .results-section.visible { display: block; }
+  .loading-state { text-align: center; padding: 40px; font-family: 'DM Mono', monospace; color: var(--muted); font-size: 13px; }
+  .spinner { width: 26px; height: 26px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .result-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .result-title { font-size: 17px; font-weight: 700; color: var(--text); }
+  .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  @media (max-width: 500px) { .cards-grid { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .card-platform { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .card-link { color: var(--blue); text-decoration: none; font-size: 10px; display: flex; align-items: center; gap: 3px; transition: opacity 0.2s; }
+  .card-link:hover { opacity: 0.7; }
+  .card-price { font-size: 26px; font-weight: 700; font-family: 'DM Mono', monospace; line-height: 1; margin-bottom: 5px; }
+  .card-sub { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; line-height: 1.5; }
+  .card-badge { display: inline-block; font-size: 10px; font-family: 'DM Mono', monospace; padding: 3px 8px; border-radius: 4px; margin-top: 8px; }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-amber { background: var(--amber-dim); color: var(--amber); }
+  .badge-red { background: var(--red-dim); color: var(--red); }
+  .badge-blue { background: var(--blue-dim); color: var(--blue); }
+  .profit-card { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 14px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .profit-card.good { border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.04); }
+  .profit-card.bad { border-color: rgba(255,95,95,0.3); background: rgba(255,95,95,0.04); }
+  .profit-number { font-size: 38px; font-weight: 800; font-family: 'DM Mono', monospace; line-height: 1; }
+  .profit-number.good { color: var(--green); }
+  .profit-number.bad { color: var(--red); }
+  .profit-details { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--muted); line-height: 1.9; }
+  .profit-details strong { color: var(--text); font-weight: 500; }
+  .ai-summary { background: var(--surface2); border-left: 3px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 14px 16px; font-size: 13px; line-height: 1.7; color: var(--text); margin-bottom: 14px; font-family: 'DM Mono', monospace; }
+  .sources-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .source-chip { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; text-decoration: none; transition: border-color 0.2s, color 0.2s; }
+  .source-chip:hover { border-color: var(--border2); color: var(--text); }
+  .error-box { background: var(--red-dim); border: 1px solid rgba(255,95,95,0.2); border-radius: var(--radius); padding: 14px 16px; font-size: 13px; font-family: 'DM Mono', monospace; color: var(--red); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Flip<span>Check</span></div>
+  <div class="tagline">resale research · instant compare</div>
+</header>
+
+<main>
+  <div class="search-section">
+    <label class="section-label">Item name or model number</label>
+    <div class="input-row">
+      <input type="text" id="searchInput" placeholder="e.g. Garmin GPSMAP 86i, Stanley cup..." />
+      <button class="btn-search" id="searchBtn" onclick="runSearch()">Search ↗</button>
+    </div>
+
+    <div class="divider-row">
+      <div class="divider-line"></div>
+      <div class="divider-text">or identify from photo</div>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="photo-area">
+      <input type="file" accept="image/*" capture="environment" id="photoInput" onchange="handlePhoto(event)" />
+      <div class="photo-inner" id="photoContent">
+        <div class="photo-icon">📷</div>
+        <div class="photo-text">tap to take photo or upload image</div>
+      </div>
+    </div>
+
+    <div id="identifiedRow" style="display:none"></div>
+
+    <div class="cost-row">
+      <label>Your cost $</label>
+      <input type="number" id="costInput" placeholder="0.00" step="0.01" min="0" oninput="updateProfitPreview()" />
+      <div class="profit-preview" id="profitPreview">enter cost to see profit</div>
+    </div>
+  </div>
+
+  <div class="results-section" id="resultsSection">
+    <div id="resultsContent"></div>
+  </div>
+</main>
+
+<script>
+const GEMINI_KEY = 'AIzaSyDuE7vJTyBA1MUEUmHmIVYXrSZoIz8iwUs';
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+
+let currentEbayAvg = null;
+
+function handlePhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const dataUrl = ev.target.result;
+    const base64 = dataUrl.split(',')[1];
+    const mime = file.type;
+    document.getElementById('photoContent').innerHTML = `<img src="${dataUrl}" class="photo-preview" /><div class="photo-text">identifying...</div>`;
+    identifyPhoto(base64, mime, dataUrl);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function identifyPhoto(base64, mime, dataUrl) {
+  try {
+    const res = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [
+          { inline_data: { mime_type: mime, data: base64 } },
+          { text: 'Identify the product in this image. Return ONLY a short product name and model number if visible, suitable for searching on eBay. No explanation, just the search term. Example: "Garmin GPSMAP 86i" or "Hydro Flask 20oz"' }
+        ]}]
+      })
+    });
+    const data = await res.json();
+    const identified = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+    document.getElementById('photoContent').innerHTML = `<img src="${dataUrl}" class="photo-preview" /><div class="photo-text">photo uploaded</div>`;
+    if (identified) {
+      const row = document.getElementById('identifiedRow');
+      row.style.display = 'flex';
+      row.className = 'identified-row';
+      row.innerHTML = `<span class="identified-label">ID'd</span><span class="identified-value" id="identifiedText">${identified}</span><button class="btn-use" onclick="useIdentified()">Use ↗</button>`;
+    }
+  } catch {
+    document.getElementById('photoContent').innerHTML = `<div class="photo-text" style="color:var(--red)">Failed. Try again.</div>`;
+  }
+}
+
+function useIdentified() {
+  const text = document.getElementById('identifiedText')?.textContent;
+  if (text) { document.getElementById('searchInput').value = text; }
+}
+
+function updateProfitPreview() {
+  const cost = parseFloat(document.getElementById('costInput').value);
+  const preview = document.getElementById('profitPreview');
+  if (!currentEbayAvg || isNaN(cost)) {
+    preview.textContent = 'enter cost to see profit';
+    preview.className = 'profit-preview';
+    return;
+  }
+  const profit = (currentEbayAvg * 0.80) - cost;
+  preview.textContent = profit >= 0 ? `+$${profit.toFixed(2)} profit` : `-$${Math.abs(profit).toFixed(2)} loss`;
+  preview.className = 'profit-preview ' + (profit >= 0 ? 'positive' : 'negative');
+  updateProfitCard(cost);
+}
+
+function updateProfitCard(cost) {
+  const card = document.getElementById('profitCard');
+  if (!card || !currentEbayAvg) return;
+  const profit = (currentEbayAvg * 0.80) - cost;
+  card.className = 'profit-card ' + (profit >= 0 ? 'good' : 'bad');
+  card.innerHTML = `
+    <div class="profit-number ${profit >= 0 ? 'good' : 'bad'}">${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}</div>
+    <div class="profit-details">
+      <strong>eBay avg sold</strong>: $${currentEbayAvg.toFixed(2)}<br>
+      <strong>after 20% fees</strong>: $${(currentEbayAvg * 0.80).toFixed(2)}<br>
+      <strong>your cost</strong>: $${cost.toFixed(2)}<br>
+      <strong>est. profit</strong>: ${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}
+    </div>`;
+}
+
+async function runSearch() {
+  const query = document.getElementById('searchInput').value.trim();
+  if (!query) return;
+
+  currentEbayAvg = null;
+  document.getElementById('profitPreview').textContent = 'enter cost to see profit';
+  document.getElementById('profitPreview').className = 'profit-preview';
+
+  const btn = document.getElementById('searchBtn');
+  btn.disabled = true;
+  btn.textContent = 'Searching...';
+
+  const resultsSection = document.getElementById('resultsSection');
+  const resultsContent = document.getElementById('resultsContent');
+  resultsSection.className = 'results-section visible';
+  resultsContent.innerHTML = `<div class="loading-state"><div class="spinner"></div>researching resale market...</div>`;
+
+  const prompt = `You are a resale arbitrage expert. Research this item for flip potential: "${query}"
+
+Based on your knowledge of eBay sold listings, Amazon pricing, and resale markets, provide accurate data.
+
+Return ONLY valid JSON, no markdown fences, no explanation:
+{
+  "product_name": "clean product name",
+  "ebay_avg_sold": 45.00,
+  "ebay_price_range": "$35 - $65",
+  "ebay_sold_30days": 23,
+  "ebay_sell_frequency": "approx X sold per day/week",
+  "ebay_shipping_note": "most listings: free shipping / buyer pays shipping / mixed",
+  "amazon_price": "$52.99",
+  "amazon_price_range": "$48 - $68",
+  "amazon_note": "sold by Amazon / 3rd party / FBA",
+  "market_summary": "2-3 sentences: demand level, sell speed, retail availability impact on margins, overall verdict. Speak like a fellow reseller who is direct and practical.",
+  "ebay_search_url": "https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}&LH_Sold=1&LH_Complete=1",
+  "amazon_search_url": "https://www.amazon.com/s?k=${encodeURIComponent(query)}",
+  "confidence": "high or medium or low"
+}`;
+
+  try {
+    const res = await fetch(GEMINI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2 }
+      })
+    });
+
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    const data = await res.json();
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    let parsed;
+    try {
+      const clean = rawText.replace(/```json|```/g, '').trim();
+      parsed = JSON.parse(clean);
+    } catch {
+      throw new Error('Could not parse response. Please try again.');
+    }
+
+    currentEbayAvg = parseFloat(parsed.ebay_avg_sold) || null;
+    const cost = parseFloat(document.getElementById('costInput').value);
+
+    let profitHtml = '';
+    if (currentEbayAvg) {
+      const ebayNet = currentEbayAvg * 0.80;
+      if (!isNaN(cost)) {
+        const profit = ebayNet - cost;
+        profitHtml = `
+          <div class="profit-card ${profit >= 0 ? 'good' : 'bad'}" id="profitCard">
+            <div class="profit-number ${profit >= 0 ? 'good' : 'bad'}">${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}</div>
+            <div class="profit-details">
+              <strong>eBay avg sold</strong>: $${currentEbayAvg.toFixed(2)}<br>
+              <strong>after 20% fees</strong>: $${ebayNet.toFixed(2)}<br>
+              <strong>your cost</strong>: $${cost.toFixed(2)}<br>
+              <strong>est. profit</strong>: ${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}
+            </div>
+          </div>`;
+      } else {
+        profitHtml = `<div class="profit-card" id="profitCard" style="justify-content:center;font-size:12px;font-family:'DM Mono',monospace;color:var(--muted)">← enter your cost above to calculate profit</div>`;
+      }
+      updateProfitPreview();
+    }
+
+    const confColor = parsed.confidence === 'high' ? 'badge-green' : parsed.confidence === 'medium' ? 'badge-amber' : 'badge-red';
+    const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(query)}&LH_Sold=1&LH_Complete=1`;
+    const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(query)}`;
+    const fbUrl = `https://www.facebook.com/marketplace/search/?query=${encodeURIComponent(query)}`;
+
+    resultsContent.innerHTML = `
+      <div class="result-header">
+        <div class="result-title">${parsed.product_name || query}</div>
+        <span class="card-badge ${confColor}">${parsed.confidence || 'medium'} confidence</span>
+      </div>
+
+      ${profitHtml}
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-platform">eBay sold <a href="${ebayUrl}" target="_blank" class="card-link">verify ↗</a></div>
+          <div class="card-price" style="color:var(--accent)">$${parseFloat(parsed.ebay_avg_sold || 0).toFixed(2)}</div>
+          <div class="card-sub">avg sold · range ${parsed.ebay_price_range || 'N/A'}</div>
+          <div class="card-badge badge-blue">${parsed.ebay_sold_30days || '?'} sold / 30 days</div>
+          <div class="card-sub" style="margin-top:5px">${parsed.ebay_sell_frequency || ''}</div>
+          ${parsed.ebay_shipping_note ? `<div class="card-sub" style="margin-top:4px;color:var(--amber)">${parsed.ebay_shipping_note}</div>` : ''}
+        </div>
+        <div class="card">
+          <div class="card-platform">Amazon <a href="${amazonUrl}" target="_blank" class="card-link">verify ↗</a></div>
+          <div class="card-price" style="color:var(--blue)">${parsed.amazon_price || 'N/A'}</div>
+          <div class="card-sub">current · range ${parsed.amazon_price_range || 'N/A'}</div>
+          <div class="card-sub" style="margin-top:5px">${parsed.amazon_note || ''}</div>
+        </div>
+      </div>
+
+      <div class="ai-summary">${parsed.market_summary || ''}</div>
+
+      <div class="sources-row">
+        <a href="${ebayUrl}" target="_blank" class="source-chip">eBay sold ↗</a>
+        <a href="${amazonUrl}" target="_blank" class="source-chip">Amazon ↗</a>
+        <a href="${fbUrl}" target="_blank" class="source-chip">FB Marketplace ↗</a>
+        <a href="https://www.google.com/search?q=${encodeURIComponent(query + ' resale price')}" target="_blank" class="source-chip">Google ↗</a>
+      </div>`;
+
+  } catch (err) {
+    resultsContent.innerHTML = `<div class="error-box">Error: ${err.message || 'Something went wrong. Please try again.'}</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Search ↗';
+}
+
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') runSearch();
+});
+</script>
+</body>
+</html>

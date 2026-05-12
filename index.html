@@ -260,10 +260,10 @@ async function runSearch() {
   const amazonUrl = `https://www.amazon.com/s?k=${encodeURIComponent(query)}`;
   const fbUrl = `https://www.facebook.com/marketplace/search/?query=${encodeURIComponent(query)}`;
 
-  const prompt = `You are a resale arbitrage expert. Search for current pricing on: "${query}"
+  const prompt = `You are a resale arbitrage expert helping a reseller evaluate flip potential. Research current market pricing for: "${query}"
 
-Search eBay sold listings and Amazon for current prices. Then respond with ONLY a JSON object (no markdown, no explanation) in this exact format:
-{"product_name":"full product name","ebay_avg_sold":45.00,"ebay_price_range":"$35 - $65","ebay_sold_30days":23,"ebay_sell_frequency":"~1 per day","ebay_shipping_note":"free shipping / buyer pays / mixed","amazon_price":"$52.99","amazon_price_range":"$48 - $68","amazon_note":"sold by Amazon / 3rd party","market_summary":"2-3 sentences on demand, sell speed, and flip worthiness. Be direct like a fellow reseller.","confidence":"high"}`;
+Use Google Search to find current eBay sold listings and Amazon prices. Then output ONLY a raw JSON object with no markdown formatting, no code fences, no explanation text before or after. Just the JSON:
+{"product_name":"full product name","ebay_avg_sold":45.00,"ebay_price_range":"$35 - $65","ebay_sold_30days":23,"ebay_sell_frequency":"~1 per day","ebay_shipping_note":"free shipping / buyer pays / mixed","amazon_price":"$52.99","amazon_price_range":"$48 - $68","amazon_note":"sold by Amazon / 3rd party","market_summary":"2-3 sentences on demand, sell speed, and flip worthiness. Be direct and practical.","confidence":"high"}`;
 
   try {
     const res = await fetch(GEMINI_URL, {
